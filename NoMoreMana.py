@@ -144,6 +144,11 @@ def main_menu():
 
         pygame.display.update()
 
+def create_button(text, x, y, w, h, color):
+    rect = pygame.Rect(x, y, w, h)
+    pygame.draw.rect(screen, color, rect)
+    draw_text(text, font, WHITE, screen, x + w // 2, y + h // 2, center=True)
+    return rect
 
 def load_card_images(card_type):
     return pygame.image.load(f"cards/{card_type}.png")
@@ -187,10 +192,16 @@ def draw_stats():
 
 def play():
     running = True
+
+    # Define the draw card button position and size
+    draw_button_x, draw_button_y, draw_button_w, draw_button_h = SCREEN_WIDTH - 220, SCREEN_HEIGHT - 80, 200, 50
+    draw_button = create_button('Draw Card', draw_button_x, draw_button_y, draw_button_w, draw_button_h, BLUE)
+
     while running:
         screen.fill(BG_COLOR)
         draw_hand(hand)  # Draw the hand with dynamic card images
         draw_stats()
+        draw_button = create_button("Draw Card", draw_button_x, draw_button_y, draw_button_w, draw_button_h, BLUE)
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -198,6 +209,12 @@ def play():
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
+                if draw_button.collidepoint(event.pos):
+                    if deck:
+                        hand.append(deck.pop())
+                        print("Drew a card. Hand now has:", len(hand), "cards.")  # Debugging print
+                    else:
+                        print("Deck is empty.")
                 # Check if the click is within the HP or MP display areas
                 if hp_rect.collidepoint(event.pos):
                     increase_hp(1)  # Increase HP by 1
